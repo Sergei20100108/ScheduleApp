@@ -1,0 +1,101 @@
+<UserControl x:Class="ScheduleApp.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{DynamicResource WindowBackgroundBrush}">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Margin="12" MaxWidth="1000">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" Margin="0,0,10,0">
+                <Border Style="{StaticResource CardBorder}">
+                    <StackPanel>
+                        <TextBlock Text="Оформление" Style="{StaticResource SectionTitle}" />
+                        <RadioButton Content="Светлая тема" GroupName="theme" IsChecked="{Binding Theme, Converter={StaticResource ThemeEquals}, ConverterParameter=Light}" />
+                        <RadioButton Content="Тёмная тема" GroupName="theme" IsChecked="{Binding Theme, Converter={StaticResource ThemeEquals}, ConverterParameter=Dark}" />
+                        <Separator />
+                        <CheckBox Content="Показывать преподавателя в плитке" IsChecked="{Binding ShowTeacherInTile}" />
+                        <CheckBox Content="Показывать аудиторию в плитке" IsChecked="{Binding ShowRoomInTile}" />
+                        <CheckBox Content="Показывать группы в плитке" IsChecked="{Binding ShowGroupsInTile}" />
+                        <CheckBox Content="Подсвечивать пустые ячейки" IsChecked="{Binding HighlightEmptyCells}" />
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource CardBorder}">
+                    <StackPanel>
+                        <TextBlock Text="Генерация" Style="{StaticResource SectionTitle}" />
+                        <TextBlock Text="Режим генерации по умолчанию:" Style="{StaticResource MutedText}" />
+                        <ComboBox ItemsSource="{Binding Complexities}" SelectedItem="{Binding DefaultComplexity}"
+                                  Width="220" HorizontalAlignment="Left">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Converter={StaticResource EnumDescription}}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </StackPanel>
+                </Border>
+
+                <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                    <Button Content="💾 Применить и сохранить" Style="{StaticResource PrimaryButton}" Command="{Binding SaveCommand}" />
+                    <Button Content="Сбросить по умолчанию" Command="{Binding ResetCommand}" />
+                </StackPanel>
+            </StackPanel>
+
+            <Border Grid.Column="1" Style="{StaticResource CardBorder}">
+                <StackPanel>
+                    <TextBlock Text="Веса мягких ограничений" Style="{StaticResource SectionTitle}" />
+                    <TextBlock Style="{StaticResource MutedText}"
+                               Text="Веса определяют, насколько важно соблюдение соответствующих предпочтений при генерации (0 — игнорировать, 1 — стандартно, выше — критично)." />
+
+                    <Grid Margin="0,8,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="140" />
+                            <ColumnDefinition Width="50" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="30" />
+                            <RowDefinition Height="30" />
+                            <RowDefinition Height="30" />
+                            <RowDefinition Height="30" />
+                            <RowDefinition Height="30" />
+                            <RowDefinition Height="30" />
+                            <RowDefinition Height="30" />
+                        </Grid.RowDefinitions>
+
+                        <TextBlock Grid.Row="0" Text="Предпочтительный день" />
+                        <Slider Grid.Row="0" Grid.Column="1" Minimum="0" Maximum="2" Value="{Binding WeightPreferredDay}" />
+                        <TextBlock Grid.Row="0" Grid.Column="2" Text="{Binding WeightPreferredDay, StringFormat='{}{0:F1}'}" />
+
+                        <TextBlock Grid.Row="1" Text="Предпочтительное время" />
+                        <Slider Grid.Row="1" Grid.Column="1" Minimum="0" Maximum="2" Value="{Binding WeightPreferredTime}" />
+                        <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding WeightPreferredTime, StringFormat='{}{0:F1}'}" />
+
+                        <TextBlock Grid.Row="2" Text="Предпочтительная аудитория" />
+                        <Slider Grid.Row="2" Grid.Column="1" Minimum="0" Maximum="2" Value="{Binding WeightPreferredAuditorium}" />
+                        <TextBlock Grid.Row="2" Grid.Column="2" Text="{Binding WeightPreferredAuditorium, StringFormat='{}{0:F1}'}" />
+
+                        <TextBlock Grid.Row="3" Text="Соответствие типа аудитории" />
+                        <Slider Grid.Row="3" Grid.Column="1" Minimum="0" Maximum="2" Value="{Binding WeightRoomType}" />
+                        <TextBlock Grid.Row="3" Grid.Column="2" Text="{Binding WeightRoomType, StringFormat='{}{0:F1}'}" />
+
+                        <TextBlock Grid.Row="4" Text="Вместимость аудитории" />
+                        <Slider Grid.Row="4" Grid.Column="1" Minimum="0" Maximum="2" Value="{Binding WeightCapacity}" />
+                        <TextBlock Grid.Row="4" Grid.Column="2" Text="{Binding WeightCapacity, StringFormat='{}{0:F1}'}" />
+
+                        <TextBlock Grid.Row="5" Text="Штраф за пар больше лимита в день" />
+                        <Slider Grid.Row="5" Grid.Column="1" Minimum="0" Maximum="3" Value="{Binding WeightMaxPairs}" />
+                        <TextBlock Grid.Row="5" Grid.Column="2" Text="{Binding WeightMaxPairs, StringFormat='{}{0:F1}'}" />
+
+                        <TextBlock Grid.Row="6" Text="Максимум пар в день (группа/преподаватель)" />
+                        <Slider Grid.Row="6" Grid.Column="1" Minimum="1" Maximum="6" Value="{Binding MaxPairsPerDay}" />
+                        <TextBlock Grid.Row="6" Grid.Column="2" Text="{Binding MaxPairsPerDay}" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

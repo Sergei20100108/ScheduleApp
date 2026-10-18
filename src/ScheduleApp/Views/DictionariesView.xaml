@@ -1,0 +1,134 @@
+<UserControl x:Class="ScheduleApp.Views.DictionariesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             xmlns:domain="clr-namespace:ScheduleApp.Domain"
+             Background="{DynamicResource WindowBackgroundBrush}">
+    <UserControl.Resources>
+        <ObjectDataProvider x:Key="AuditoriumTypes" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="domain:AuditoriumType" />
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+        <ObjectDataProvider x:Key="DisciplineTypes" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="domain:DisciplineType" />
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+        <ObjectDataProvider x:Key="PeriodTypes" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="domain:PeriodType" />
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+    </UserControl.Resources>
+
+    <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+            <Button Content="⟳ Обновить" Command="{Binding RefreshCommand}" />
+            <Button Content="＋ Добавить" Command="{Binding AddCommand}" />
+            <Button Content="🗑 Удалить выбранную" Command="{Binding RemoveCommand}" />
+            <Button Content="💾 Сохранить изменения" Style="{StaticResource PrimaryButton}" Command="{Binding SaveCommand}" />
+            <TextBlock Text="{Binding StatusText}" Style="{StaticResource MutedText}" VerticalAlignment="Center" Margin="10,0,0,0" />
+        </StackPanel>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="220" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Border Style="{StaticResource CardBorder}" Padding="6">
+                <StackPanel>
+                    <TextBlock Text="Разделы справочников" Style="{StaticResource SectionTitle}" />
+                    <ListBox ItemsSource="{Binding AreaNames}" SelectedItem="{Binding SelectedArea}" BorderThickness="0"
+                             Background="Transparent" />
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="1" Style="{StaticResource CardBorder}" Padding="10">
+                <Grid>
+                    <!-- Аудитории -->
+                    <DataGrid ItemsSource="{Binding CurrentArea.Rows}" SelectedItem="{Binding CurrentArea.SelectedItem}"
+                              Visibility="{Binding SelectedArea, Converter={StaticResource StringEquals}, ConverterParameter=Аудитории}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Номер" Binding="{Binding Number}" Width="120" />
+                            <DataGridTextColumn Header="Вместимость" Binding="{Binding Capacity}" Width="120" />
+                            <DataGridComboBoxColumn Header="Тип" SelectedItemBinding="{Binding Type}"
+                                                    ItemsSource="{Binding Source={StaticResource AuditoriumTypes}}" Width="200" />
+                            <DataGridTextColumn Header="Корпус" Binding="{Binding Building}" Width="*" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <!-- Преподаватели -->
+                    <DataGrid ItemsSource="{Binding CurrentArea.Rows}" SelectedItem="{Binding CurrentArea.SelectedItem}"
+                              Visibility="{Binding SelectedArea, Converter={StaticResource StringEquals}, ConverterParameter=Преподаватели}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="ФИО" Binding="{Binding FullName}" Width="2*" />
+                            <DataGridTextColumn Header="Кафедра" Binding="{Binding Department}" Width="*" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <!-- Дисциплины -->
+                    <DataGrid ItemsSource="{Binding CurrentArea.Rows}" SelectedItem="{Binding CurrentArea.SelectedItem}"
+                              Visibility="{Binding SelectedArea, Converter={StaticResource StringEquals}, ConverterParameter=Дисциплины}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Название" Binding="{Binding Name}" Width="2*" />
+                            <DataGridComboBoxColumn Header="Тип" SelectedItemBinding="{Binding Type}"
+                                                    ItemsSource="{Binding Source={StaticResource DisciplineTypes}}" Width="160" />
+                            <DataGridTextColumn Header="Цвет (HEX)" Binding="{Binding ColorHex}" Width="140" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <!-- Группы -->
+                    <DataGrid ItemsSource="{Binding CurrentArea.Rows}" SelectedItem="{Binding CurrentArea.SelectedItem}"
+                              Visibility="{Binding SelectedArea, Converter={StaticResource StringEquals}, ConverterParameter=Учебные группы}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Название" Binding="{Binding Name}" Width="2*" />
+                            <DataGridTextColumn Header="Курс" Binding="{Binding Course}" Width="100" />
+                            <DataGridTextColumn Header="Студентов" Binding="{Binding StudentCount}" Width="120" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <!-- Учебный план -->
+                    <DataGrid ItemsSource="{Binding CurrentArea.Rows}" SelectedItem="{Binding CurrentArea.SelectedItem}"
+                              Visibility="{Binding SelectedArea, Converter={StaticResource StringEquals}, ConverterParameter=Учебный план}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Дисциплина" Binding="{Binding DisciplineName}" Width="2*" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Преподаватель" Binding="{Binding TeacherName}" Width="2*" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Группа" Binding="{Binding GroupName}" Width="*" IsReadOnly="True" />
+                            <DataGridTextColumn Header="Занятий в неделю" Binding="{Binding LessonsPerWeek}" Width="140" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <!-- Слоты -->
+                    <DataGrid ItemsSource="{Binding CurrentArea.Rows}" SelectedItem="{Binding CurrentArea.SelectedItem}"
+                              Visibility="{Binding SelectedArea, Converter={StaticResource StringEquals}, ConverterParameter=Временные слоты}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Порядок" Binding="{Binding Order}" Width="100" />
+                            <DataGridTextColumn Header="Начало (мин от 00:00)" Binding="{Binding StartMinutes}" Width="180" />
+                            <DataGridTextColumn Header="Окончание (мин)" Binding="{Binding EndMinutes}" Width="160" />
+                            <DataGridTextColumn Header="Вид" Binding="{Binding Display}" Width="*" IsReadOnly="True" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+                    <!-- Периоды -->
+                    <DataGrid ItemsSource="{Binding CurrentArea.Rows}" SelectedItem="{Binding CurrentArea.SelectedItem}"
+                              Visibility="{Binding SelectedArea, Converter={StaticResource StringEquals}, ConverterParameter=Периоды расписания}">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Название" Binding="{Binding Name}" Width="2*" />
+                            <DataGridComboBoxColumn Header="Тип" SelectedItemBinding="{Binding Type}"
+                                                    ItemsSource="{Binding Source={StaticResource PeriodTypes}}" Width="140" />
+                            <DataGridTextColumn Header="Начало" Binding="{Binding StartDate, StringFormat=dd.MM.yyyy}" Width="140" />
+                            <DataGridTextColumn Header="Недель" Binding="{Binding DurationWeeks}" Width="*" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>
