@@ -9,6 +9,7 @@
     <helpers:NullToVisibilityConverter x:Key="NullToVisibility" />
     <helpers:FirstLineConverter x:Key="FirstLine" />
     <helpers:StringEqualsConverter x:Key="StringEquals" />
+    <helpers:StringEqualsVisibilityConverter x:Key="StringToVisibility" />
     <helpers:CountToVisibilityConverter x:Key="CountToVisibility" />
     <helpers:ModeEqualsConverter x:Key="ModeEquals" />
     <helpers:ThemeEqualsConverter x:Key="ThemeEquals" />
@@ -504,7 +505,8 @@
                                 BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1">
                             <TabPanel IsItemsHost="True" Margin="8,6,8,0" />
                         </Border>
-                        <ContentPresenter Grid.Row="1" ContentSource="SelectedContent" />
+                        <ContentPresenter x:Name="PART_SelectedContentHost" Grid.Row="1"
+                                          ContentSource="SelectedContent" />
                     </Grid>
                 </ControlTemplate>
             </Setter.Value>

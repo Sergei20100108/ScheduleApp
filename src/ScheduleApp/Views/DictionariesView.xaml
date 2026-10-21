@@ -29,10 +29,14 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
-            <Button Content="⟳ Обновить" Command="{Binding RefreshCommand}" />
-            <Button Content="＋ Добавить" Command="{Binding AddCommand}" />
-            <Button Content="🗑 Удалить выбранную" Command="{Binding RemoveCommand}" />
-            <Button Content="💾 Сохранить изменения" Style="{StaticResource PrimaryButton}" Command="{Binding SaveCommand}" />
+            <Button Content="⟳ Обновить" Command="{Binding RefreshCommand}"
+                    ToolTip="Перезагрузить справочники из базы данных" />
+            <Button Content="＋ Добавить" Command="{Binding AddCommand}"
+                    ToolTip="Добавить новую строку в выбранный раздел" />
+            <Button Content="🗑 Удалить выбранную" Command="{Binding RemoveCommand}"
+                    ToolTip="Удалить выбранную запись из базы данных (вместе со связанными записями)" />
+            <Button Content="💾 Сохранить изменения" Style="{StaticResource PrimaryButton}" Command="{Binding SaveCommand}"
+                    ToolTip="Сохранить изменения и новые записи текущего раздела" />
             <TextBlock Text="{Binding StatusText}" Style="{StaticResource MutedText}" VerticalAlignment="Center" Margin="10,0,0,0" />
         </StackPanel>
 
@@ -53,8 +57,8 @@
             <Border Grid.Column="1" Style="{StaticResource CardBorder}" Padding="10">
                 <Grid>
                     <!-- Аудитории -->
-                    <DataGrid ItemsSource="{Binding CurrentArea.Rows}" SelectedItem="{Binding CurrentArea.SelectedItem}"
-                              Visibility="{Binding SelectedArea, Converter={StaticResource StringEquals}, ConverterParameter=Аудитории}">
+                    <DataGrid ItemsSource="{Binding Auditoriums}" SelectedItem="{Binding SelectedAuditorium}"
+                              Visibility="{Binding SelectedArea, Converter={StaticResource StringToVisibility}, ConverterParameter=Аудитории}">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Номер" Binding="{Binding Number}" Width="120" />
                             <DataGridTextColumn Header="Вместимость" Binding="{Binding Capacity}" Width="120" />
@@ -65,8 +69,8 @@
                     </DataGrid>
 
                     <!-- Преподаватели -->
-                    <DataGrid ItemsSource="{Binding CurrentArea.Rows}" SelectedItem="{Binding CurrentArea.SelectedItem}"
-                              Visibility="{Binding SelectedArea, Converter={StaticResource StringEquals}, ConverterParameter=Преподаватели}">
+                    <DataGrid ItemsSource="{Binding Teachers}" SelectedItem="{Binding SelectedTeacher}"
+                              Visibility="{Binding SelectedArea, Converter={StaticResource StringToVisibility}, ConverterParameter=Преподаватели}">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="ФИО" Binding="{Binding FullName}" Width="2*" />
                             <DataGridTextColumn Header="Кафедра" Binding="{Binding Department}" Width="*" />
@@ -74,8 +78,8 @@
                     </DataGrid>
 
                     <!-- Дисциплины -->
-                    <DataGrid ItemsSource="{Binding CurrentArea.Rows}" SelectedItem="{Binding CurrentArea.SelectedItem}"
-                              Visibility="{Binding SelectedArea, Converter={StaticResource StringEquals}, ConverterParameter=Дисциплины}">
+                    <DataGrid ItemsSource="{Binding Disciplines}" SelectedItem="{Binding SelectedDiscipline}"
+                              Visibility="{Binding SelectedArea, Converter={StaticResource StringToVisibility}, ConverterParameter=Дисциплины}">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Название" Binding="{Binding Name}" Width="2*" />
                             <DataGridComboBoxColumn Header="Тип" SelectedItemBinding="{Binding Type}"
@@ -85,8 +89,8 @@
                     </DataGrid>
 
                     <!-- Группы -->
-                    <DataGrid ItemsSource="{Binding CurrentArea.Rows}" SelectedItem="{Binding CurrentArea.SelectedItem}"
-                              Visibility="{Binding SelectedArea, Converter={StaticResource StringEquals}, ConverterParameter=Учебные группы}">
+                    <DataGrid ItemsSource="{Binding Groups}" SelectedItem="{Binding SelectedGroup}"
+                              Visibility="{Binding SelectedArea, Converter={StaticResource StringToVisibility}, ConverterParameter=Учебные группы}">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Название" Binding="{Binding Name}" Width="2*" />
                             <DataGridTextColumn Header="Курс" Binding="{Binding Course}" Width="100" />
@@ -95,8 +99,8 @@
                     </DataGrid>
 
                     <!-- Учебный план -->
-                    <DataGrid ItemsSource="{Binding CurrentArea.Rows}" SelectedItem="{Binding CurrentArea.SelectedItem}"
-                              Visibility="{Binding SelectedArea, Converter={StaticResource StringEquals}, ConverterParameter=Учебный план}">
+                    <DataGrid ItemsSource="{Binding PlanItems}" SelectedItem="{Binding SelectedPlanItem}"
+                              Visibility="{Binding SelectedArea, Converter={StaticResource StringToVisibility}, ConverterParameter=Учебный план}">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Дисциплина" Binding="{Binding DisciplineName}" Width="2*" IsReadOnly="True" />
                             <DataGridTextColumn Header="Преподаватель" Binding="{Binding TeacherName}" Width="2*" IsReadOnly="True" />
@@ -106,8 +110,8 @@
                     </DataGrid>
 
                     <!-- Слоты -->
-                    <DataGrid ItemsSource="{Binding CurrentArea.Rows}" SelectedItem="{Binding CurrentArea.SelectedItem}"
-                              Visibility="{Binding SelectedArea, Converter={StaticResource StringEquals}, ConverterParameter=Временные слоты}">
+                    <DataGrid ItemsSource="{Binding Slots}" SelectedItem="{Binding SelectedSlot}"
+                              Visibility="{Binding SelectedArea, Converter={StaticResource StringToVisibility}, ConverterParameter=Временные слоты}">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Порядок" Binding="{Binding Order}" Width="100" />
                             <DataGridTextColumn Header="Начало (мин от 00:00)" Binding="{Binding StartMinutes}" Width="180" />
@@ -117,8 +121,8 @@
                     </DataGrid>
 
                     <!-- Периоды -->
-                    <DataGrid ItemsSource="{Binding CurrentArea.Rows}" SelectedItem="{Binding CurrentArea.SelectedItem}"
-                              Visibility="{Binding SelectedArea, Converter={StaticResource StringEquals}, ConverterParameter=Периоды расписания}">
+                    <DataGrid ItemsSource="{Binding Periods}" SelectedItem="{Binding SelectedPeriod}"
+                              Visibility="{Binding SelectedArea, Converter={StaticResource StringToVisibility}, ConverterParameter=Периоды расписания}">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Название" Binding="{Binding Name}" Width="2*" />
                             <DataGridComboBoxColumn Header="Тип" SelectedItemBinding="{Binding Type}"
