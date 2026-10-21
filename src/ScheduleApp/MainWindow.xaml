@@ -15,10 +15,12 @@
         </Grid.RowDefinitions>
 
         <!-- Заголовок приложения -->
-        <Border Grid.Row="0" Background="{DynamicResource HeaderBackgroundBrush}" Padding="16,12">
+        <Border Grid.Row="0" Background="{DynamicResource HeaderBackgroundBrush}" Padding="16,12"
+                MouseLeftButtonDown="OnHeaderMouseLeftButtonDown">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
@@ -35,6 +37,33 @@
                                Opacity="0.85" FontSize="12" VerticalAlignment="Center" Margin="0,0,12,0" />
                     <TextBlock Text="Big Pickle" Opacity="0.5" FontSize="11"
                                Foreground="{DynamicResource HeaderForegroundBrush}" VerticalAlignment="Center" />
+                </StackPanel>
+
+                <!-- Круглые кнопки управления окном -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="14,0,0,0">
+                    <Button x:Name="MinimizeButton" Style="{StaticResource WindowControlButton}"
+                            Click="OnMinimizeClick" ToolTip="Свернуть">
+                        <Path Data="M 1,6 L 11,6" Stroke="{DynamicResource HeaderForegroundBrush}" StrokeThickness="1.4"
+                              StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+                    </Button>
+                    <Button x:Name="MaximizeButton" Style="{StaticResource WindowControlButton}"
+                            Click="OnMaximizeClick" ToolTip="Развернуть">
+                        <Grid>
+                            <Path x:Name="MaximizeIcon" Data="M 0.5,0.5 L 11.5,0.5 L 11.5,11.5 L 0.5,11.5 Z"
+                                  Stroke="{DynamicResource HeaderForegroundBrush}" StrokeThickness="1.4"
+                                  StrokeLineJoin="Round" />
+                            <Path x:Name="RestoreIcon" Visibility="Collapsed"
+                                  Data="M 3.5,0.5 L 11.5,0.5 L 11.5,8.5 M 0.5,3.5 L 0.5,11.5 L 8.5,11.5 L 8.5,3.5 Z"
+                                  Stroke="{DynamicResource HeaderForegroundBrush}" StrokeThickness="1.4"
+                                  StrokeLineJoin="Round" />
+                        </Grid>
+                    </Button>
+                    <Button x:Name="ExitButton" Style="{StaticResource WindowExitButton}"
+                            Click="OnExitClick" ToolTip="Выход">
+                        <Path Data="M 0.5,0.5 L 11.5,11.5 M 11.5,0.5 L 0.5,11.5"
+                              Stroke="{DynamicResource HeaderForegroundBrush}" StrokeThickness="1.4"
+                              StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+                    </Button>
                 </StackPanel>
             </Grid>
         </Border>
