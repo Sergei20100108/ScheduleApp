@@ -21,6 +21,7 @@ namespace ScheduleApp.ViewModels
 
         private string _selectedArea = "Преподаватели";
         private string _statusText = "";
+        private bool _skipCascadePrompt;
 
         public DictionariesViewModel(IServiceScopeFactory scopeFactory, IDialogService dialogs, Action onDataChanged)
         {
@@ -29,7 +30,7 @@ namespace ScheduleApp.ViewModels
             _onDataChanged = onDataChanged;
 
             AddCommand = new RelayCommand(AddCurrent, () => CurrentArea != null);
-            RemoveCommand = new RelayCommand(RemoveCurrent, () => CurrentArea?.SelectedItem != null);
+            RemoveCommand = new RelayCommand(RemoveCurrent, CanRemove);
             SaveCommand = new RelayCommand(SaveCurrent, () => CurrentArea != null);
             RefreshCommand = new RelayCommand(LoadAll);
         }
@@ -59,6 +60,14 @@ namespace ScheduleApp.ViewModels
                     Raise(nameof(SelectedRow));
                 }
             }
+        }
+
+        private bool CanRemove()
+        {
+            var area = CurrentArea;
+            if (area == null) return false;
+            if (area.SelectedItems != null && area.SelectedItems.Count > 0) return true;
+            return area.SelectedItem != null;
         }
 
         /// <summary>
@@ -230,24 +239,35 @@ namespace ScheduleApp.ViewModels
             RowAdded?.Invoke(this, EventArgs.Empty);
         }
 
-        /// <summary>Удаляет выбранную запись из базы данных (а не только из таблицы).</summary>
+        /// <summary>Удаляет выбранные записи из базы данных (а не только из таблицы).</summary>
         private void RemoveCurrent()
         {
             var area = CurrentArea;
-            var row = area?.SelectedItem;
-            if (area == null || row == null) return;
+            if (area == null) return;
 
-            var name = row is IDisplayRow d ? d.Display : row.ToString();
-            if (string.IsNullOrWhiteSpace(name)) name = area.EntityName;
+            var sel = area.SelectedItems;
+            var rows = sel != null && sel.Count > 0
+                ? new List<object>(sel.Cast<object>())
+                : (area.SelectedItem != null ? new List<object> { area.SelectedItem } : new List<object>());
+            if (rows.Count == 0) return;
 
-            if (!_dialogs.Confirm($"Удалить «{name}» из базы данных?", "Удаление"))
+            var many = rows.Count > 1;
+            var name = many ? $"{rows.Count} записей" : DisplayNameOf(area, rows[0]);
+            var question = many
+                ? $"Удалить выбранные записи ({rows.Count})? Вместе с ними будут удалены связанные данные."
+                : $"Удалить «{name}» из базы данных?";
+
+            if (!_dialogs.Confirm(question, "Удаление"))
                 return;
 
             try
             {
-                area.RemoveSelected();
+                _skipCascadePrompt = many;
+                var removed = area.RemoveRows(rows);
                 _onDataChanged?.Invoke();
-                StatusText = $"«{SelectedArea}»: «{name}» удалён";
+                StatusText = many
+                    ? $"«{SelectedArea}»: удалено записей — {removed}"
+                    : $"«{SelectedArea}»: «{name}» удалён";
             }
             catch (OperationCanceledException)
             {
@@ -256,10 +276,21 @@ namespace ScheduleApp.ViewModels
             catch (Exception ex)
             {
                 _dialogs.Error(ex.Message);
-                StatusText = $"«{SelectedArea}»: не удалось удалить «{name}»";
+                StatusText = many
+                    ? $"«{SelectedArea}»: не удалось удалить выбранные записи"
+                    : $"«{SelectedArea}»: не удалось удалить «{name}»";
+            }
+            finally
+            {
+                _skipCascadePrompt = false;
             }
         }
 
+        private static string DisplayNameOf(DictionaryAreaViewModel area, object row)
+        {
+            var name = row is IDisplayRow display ? display.Display : row?.ToString();
+            return string.IsNullOrWhiteSpace(name) ? area.EntityName : name;
+        }
         private void SaveCurrent()
         {
             var area = CurrentArea;
@@ -445,7 +476,7 @@ namespace ScheduleApp.ViewModels
             var lessonCount = db.Lessons.Count(l => l.TeacherId == id);
             var prefCount = db.TeacherPreferences.Count(p => p.TeacherId == id);
 
-            if (planCount + lessonCount + prefCount > 0)
+            if (planCount + lessonCount + prefCount > 0 && !_skipCascadePrompt)
             {
                 var message =
                     $"Преподаватель «{teacher.FullName}» связан с другими данными:\n" +
@@ -478,7 +509,7 @@ namespace ScheduleApp.ViewModels
             var planCount = db.StudyPlanItems.Count(p => p.GroupId == id);
             var linkCount = db.LessonGroups.Count(lg => lg.GroupId == id);
 
-            if (planCount + linkCount > 0)
+            if (planCount + linkCount > 0 && !_skipCascadePrompt)
             {
                 var message =
                     $"Группа «{group.Name}» связана с другими данными:\n" +
@@ -506,7 +537,7 @@ namespace ScheduleApp.ViewModels
 
             var lessonCount = db.Lessons.Count(l => l.AuditoriumId == id);
             var prefCount = db.TeacherPreferences.Count(p => p.AuditoriumId == id);
-            if (lessonCount + prefCount > 0)
+            if (lessonCount + prefCount > 0 && !_skipCascadePrompt)
             {
                 var message =
                     $"Аудитория «{entity.Number}» используется в {lessonCount} занятиях и {prefCount} предпочтениях.\n\n" +
@@ -532,7 +563,7 @@ namespace ScheduleApp.ViewModels
 
             var lessonCount = db.Lessons.Count(l => l.DisciplineId == id);
             var planCount = db.StudyPlanItems.Count(p => p.DisciplineId == id);
-            if (lessonCount + planCount > 0)
+            if (lessonCount + planCount > 0 && !_skipCascadePrompt)
             {
                 var message =
                     $"Дисциплина «{entity.Name}» используется в {lessonCount} занятиях и {planCount} записях учебного плана.\n\n" +
@@ -558,7 +589,7 @@ namespace ScheduleApp.ViewModels
 
             var lessonCount = db.Lessons.Count(l => l.TimeSlotId == id);
             var prefCount = db.TeacherPreferences.Count(p => p.TimeSlotId == id);
-            if (lessonCount + prefCount > 0)
+            if (lessonCount + prefCount > 0 && !_skipCascadePrompt)
             {
                 var message =
                     $"Слот «{entity.Display}» используется в {lessonCount} занятиях и {prefCount} предпочтениях.\n\n" +
@@ -592,7 +623,7 @@ namespace ScheduleApp.ViewModels
             if (entity == null) return;
 
             var lessonCount = db.Lessons.Count(l => l.PeriodId == id);
-            if (lessonCount > 0)
+            if (lessonCount > 0 && !_skipCascadePrompt)
             {
                 var message =
                     $"Период «{entity.Name}» содержит {lessonCount} занятий — они будут удалены вместе с ним.\n\n" +
@@ -647,6 +678,7 @@ namespace ScheduleApp.ViewModels
 
         public string EntityName => _entityName;
         public ObservableCollection<object> Rows { get; }
+        public System.Collections.IList SelectedItems { get; set; } = new System.Collections.ArrayList();
 
         public object SelectedItem
         {
@@ -656,6 +688,39 @@ namespace ScheduleApp.ViewModels
                 if (Set(ref _selectedItem, value))
                     CommandManager.InvalidateRequerySuggested();
             }
+        }
+
+        /// <summary>Удаляет несколько строк сразу (используется для множественного выбора).</summary>
+        public int RemoveRows(List<object> rows)
+        {
+            if (rows == null || rows.Count == 0) return 0;
+            var count = 0;
+            using (var scope = _scopeFactory.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<ScheduleDbContext>();
+                foreach (var row in rows.ToList())
+                {
+                    var id = row is IDisplayRow display ? display.Id : 0;
+                    if (id > 0)
+                    {
+                        try
+                        {
+                            _remove(db, row);
+                        }
+                        catch (DbUpdateException ex)
+                        {
+                            throw new InvalidOperationException(
+                                "Не удалось удалить одну из записей: она используется в других данных. " +
+                                (ex.InnerException?.Message ?? ex.Message), ex);
+                        }
+                    }
+                    if (Rows.Contains(row)) Rows.Remove(row);
+                    count++;
+                }
+                if (SelectedItems != null) SelectedItems.Clear();
+                SelectedItem = null;
+            }
+            return count;
         }
 
         public void AddRow()
@@ -762,6 +827,7 @@ namespace ScheduleApp.ViewModels
         public void Reload()
         {
             SelectedItem = null;
+            if (SelectedItems != null) SelectedItems.Clear();
             Rows.Clear();
             foreach (var r in LoadRows()) Rows.Add(r);
         }
