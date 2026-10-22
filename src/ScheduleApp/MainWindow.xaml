@@ -1,12 +1,20 @@
 <Window x:Class="ScheduleApp.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
         xmlns:views="clr-namespace:ScheduleApp.Views"
         Title="Расписание — генератор учебного расписания"
         Height="900" Width="1500" WindowStartupLocation="CenterScreen"
         MinHeight="600" MinWidth="1000"
+        WindowStyle="None" AllowsTransparency="True"
         Background="{DynamicResource WindowBackgroundBrush}"
         FontFamily="Segoe UI" UseLayoutRounding="True" SnapsToDevicePixels="True">
+    <!-- Собственный заголовок окна: системные кнопки свернуть/развернуть/закрыть отключены -->
+    <shell:WindowChrome.WindowChrome>
+        <shell:WindowChrome CaptionHeight="0" ResizeBorderThickness="6" GlassFrameThickness="0"
+                            CornerRadius="0" UseAeroCaptionButtons="False" />
+    </shell:WindowChrome.WindowChrome>
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />

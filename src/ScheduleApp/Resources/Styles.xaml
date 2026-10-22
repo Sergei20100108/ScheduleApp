@@ -9,6 +9,7 @@
     <helpers:NullToVisibilityConverter x:Key="NullToVisibility" />
     <helpers:FirstLineConverter x:Key="FirstLine" />
     <helpers:StringEqualsConverter x:Key="StringEquals" />
+    <helpers:StringEqualsVisibilityConverter x:Key="StringToVisibility" />
     <helpers:CountToVisibilityConverter x:Key="CountToVisibility" />
     <helpers:ModeEqualsConverter x:Key="ModeEquals" />
     <helpers:ThemeEqualsConverter x:Key="ThemeEquals" />
@@ -153,28 +154,31 @@
 
     <!-- Круглые кнопки управления окном (свернуть / развернуть / выход) -->
     <Style x:Key="WindowControlButton" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
-        <Setter Property="Width" Value="28" />
-        <Setter Property="Height" Value="28" />
-        <Setter Property="MinHeight" Value="28" />
+        <Setter Property="Width" Value="30" />
+        <Setter Property="Height" Value="30" />
+        <Setter Property="MinHeight" Value="30" />
         <Setter Property="Padding" Value="0" />
         <Setter Property="Margin" Value="0,0,8,0" />
-        <Setter Property="Background" Value="Transparent" />
-        <Setter Property="BorderBrush" Value="Transparent" />
-        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Background" Value="#26FFFFFF" />
+        <Setter Property="BorderBrush" Value="#66FFFFFF" />
+        <Setter Property="BorderThickness" Value="1" />
         <Setter Property="Foreground" Value="{DynamicResource HeaderForegroundBrush}" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="root" Background="{TemplateBinding Background}"
-                            CornerRadius="14" Width="28" Height="28" SnapsToDevicePixels="True">
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="15" Width="30" Height="30" SnapsToDevicePixels="True">
                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="root" Property="Background" Value="#33FFFFFF" />
+                            <Setter TargetName="root" Property="Background" Value="#59FFFFFF" />
+                            <Setter TargetName="root" Property="BorderBrush" Value="#A6FFFFFF" />
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="root" Property="Background" Value="#55FFFFFF" />
+                            <Setter TargetName="root" Property="Background" Value="#8CFFFFFF" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -188,12 +192,15 @@
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="root" Background="{TemplateBinding Background}"
-                            CornerRadius="14" Width="28" Height="28" SnapsToDevicePixels="True">
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="15" Width="30" Height="30" SnapsToDevicePixels="True">
                         <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="root" Property="Background" Value="{DynamicResource ConflictBrush}" />
+                            <Setter TargetName="root" Property="BorderBrush" Value="{DynamicResource ConflictBrush}" />
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
                             <Setter TargetName="root" Property="Background" Value="{DynamicResource ConflictBrush}" />
@@ -498,7 +505,8 @@
                                 BorderBrush="{DynamicResource BorderBrush}" BorderThickness="0,0,0,1">
                             <TabPanel IsItemsHost="True" Margin="8,6,8,0" />
                         </Border>
-                        <ContentPresenter Grid.Row="1" ContentSource="SelectedContent" />
+                        <ContentPresenter x:Name="PART_SelectedContentHost" Grid.Row="1"
+                                          ContentSource="SelectedContent" />
                     </Grid>
                 </ControlTemplate>
             </Setter.Value>

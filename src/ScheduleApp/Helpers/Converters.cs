@@ -109,6 +109,18 @@ namespace ScheduleApp.Helpers
             Binding.DoNothing;
     }
 
+    /// <summary>Показывает элемент, если значение равно параметру (для Visibility).</summary>
+    public sealed class StringEqualsVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture) =>
+            string.Equals(value as string, parameter as string, StringComparison.Ordinal)
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) =>
+            Binding.DoNothing;
+    }
+
     /// <summary>true → Visible, используется вместе с ConverterParameter="invert".</summary>
     public sealed class CountToVisibilityConverter : IValueConverter
     {

@@ -32,9 +32,22 @@ namespace ScheduleApp
 
         private void OnHeaderMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.ClickCount == 2 && !IsInsideButton(e.OriginalSource as DependencyObject))
+            if (e.ChangedButton != MouseButton.Left) return;
+            if (IsInsideButton(e.OriginalSource as DependencyObject)) return;
+
+            if (e.ClickCount == 2)
             {
                 ToggleMaximize();
+                return;
+            }
+
+            try
+            {
+                DragMove();
+            }
+            catch (InvalidOperationException)
+            {
+                // Перетаскивание недоступно (например, окно развёрнуто с анимацией)
             }
         }
 
